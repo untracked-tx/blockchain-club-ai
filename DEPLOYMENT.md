@@ -1,74 +1,53 @@
-# 🚀 Deployment Guide - CU Denver Blockchain Club AI
+# 🚀 Deployment Guide
 
-## 🍎 MacBook Quick Start (Recommended)
+## MacBook Plug-and-Play Setup
 
-### One-Command Setup
+### Super Quick Start (One Command)
 ```bash
-git clone https://github.com/untracked-tx/blockchain-club-ai.git && cd blockchain-club-ai && chmod +x start_macbook.sh && ./start_macbook.sh
+git clone https://github.com/untracked-tx/blockchain-club-ai.git && cd blockchain-club-ai && ./start_macbook.sh
 ```
 
-### What the script does:
-1. ✅ Checks if Python 3 and pip are installed
-2. ✅ Installs Ollama (if not already installed)
-3. ✅ Downloads the llama3-chatqa model
-4. ✅ Installs Python dependencies
-5. ✅ Sets up the documentation database
-6. ✅ Starts the AI assistant on localhost:8000
-
-### Making it Public (Optional)
-In another terminal:
+Then in another terminal:
 ```bash
-# Install ngrok if you haven't already
-brew install ngrok
-
-# Make your local server public
 ngrok http 8000
 ```
 
-## 🔧 Manual Setup (If Script Fails)
-
-### Prerequisites
-1. **Python 3.8 or higher** - Check with `python3 --version`
-2. **Homebrew** - Install from https://brew.sh
-3. **Git** - Should be pre-installed on macOS
-
-### Step-by-Step Installation
+### Manual Setup Steps
 
 #### 1. Install Ollama
 ```bash
 brew install ollama
-```
-
-#### 2. Start Ollama and Download Model
-```bash
-# Start Ollama in background
 ollama serve &
-
-# Download the model (this will take a few minutes)
-ollama pull llama3-chatqa
+ollama pull llama3.1:8b
 ```
 
-#### 3. Clone and Setup Project
+#### 2. Clone & Setup Project
 ```bash
 git clone https://github.com/untracked-tx/blockchain-club-ai.git
 cd blockchain-club-ai
 pip3 install -r requirements.txt
-```
-
-#### 4. Setup Documentation Database
-```bash
 python3 setup_docs.py
 ```
 
-#### 5. Run the Application
+#### 3. Run the Application
 ```bash
 python3 app.py
 ```
 
-### 🌐 Access Points
-- **API**: http://localhost:8000
-- **Documentation**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+#### 4. Make it Public
+```bash
+# In another terminal:
+ngrok http 8000
+```
+
+Copy the ngrok URL and update your main site to point to it.
+
+## Running on Other Devices
+
+### Prerequisites
+1. **Python 3.8+** installed
+2. **Ollama** installed with Llama 3.1 8B model
+3. **ngrok** (for public access)
 
 ### Setup Steps
 
@@ -76,16 +55,13 @@ python3 app.py
 ```bash
 # Download Ollama from https://ollama.ai
 # Then pull the model:
-ollama pull llama3-chatqa
+ollama pull llama3.1:8b
 ```
 
-#### 2. Install Python 3.8+ and dependencies
+#### 2. Clone & Setup Project
 ```bash
-brew install python
-python3 --version
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip wheel setuptools
+git clone https://github.com/untracked-tx/blockchain-club-ai.git
+cd blockchain-club-ai
 pip install -r requirements.txt
 ```
 
@@ -115,7 +91,7 @@ export PORT=8000
 
 ### Troubleshooting
 - **Ollama not found**: Make sure Ollama is running (`ollama serve`)
-- **Model not found**: Run `ollama pull llama3-chatqa`
+- **Model not found**: Run `ollama pull llama3.1:8b`
 - **Port in use**: Change port in app.py or kill process using port 8000
 - **No documents**: Make sure `user-guide/` folder exists with .md files
 

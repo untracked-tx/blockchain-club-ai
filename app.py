@@ -1,177 +1,141 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import requests
 import chromadb
-from sentence_transformers import SentenceTransformer
-import os
-from typing import List
+import requests
+import json
+import uvicorn
 
-app = FastAPI(
-    title="CU Denver Blockchain Club AI", 
-    description="AI-powered documentation chatbot for the CU Denver Blockchain Club's on-chain membership system",
-    version="1.0.0"
-)
+app = FastAPI(title="CU Denver Blockchain Club AI Assistant")
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://untrackedtx.xyz",
+        "https://*.ngrok-free.app",  # Allow all ngrok domains
+        "https://*.ngrok.io",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize components
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
+# Initialize ChromaDB
+client = chromadb.PersistentClient(path="./chroma_db")
 
-class QueryRequest(BaseModel):
+class Question(BaseModel):
     question: str
-    context: str = ""  # Optional context from your site
 
-class QueryResponse(BaseModel):
-    answer: str
-    sources: List[str]
-    confidence: float
-
-def query_ollama(prompt: str) -> str:
-    """Query local Ollama instance"""
+def search_documents(query: str, n_results: int = 3):
+    """Search for relevant documents using ChromaDB"""
     try:
-        response = requests.post("http://localhost:11434/api/generate", 
-                               json={
-                                   "model": "llama3-chatqa",
-                                   "prompt": prompt,
-                                   "stream": False
-                               },
-                               timeout=60)
-        
-        if response.status_code == 200:
-            return response.json()['response']
-        else:
-            return f"Error: Ollama returned status {response.status_code}. Make sure Ollama is running with 'ollama serve'"
-    except requests.exceptions.ConnectionError:
-        return "Error: Cannot connect to Ollama. Please make sure Ollama is running with 'ollama serve'"
-    except requests.exceptions.Timeout:
-        return "Error: Ollama request timed out. The model might be too large or busy."
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-def search_docs(query: str, top_k: int = 3):
-    """Search for relevant documents"""
-    try:
-        collection = chroma_client.get_collection(name="tech_docs")
-        query_embedding = embedder.encode([query]).tolist()
-        
+        collection = client.get_collection("docs")
         results = collection.query(
-            query_embeddings=query_embedding,
-            n_results=top_k
+            query_texts=[query],
+            n_results=n_results
         )
-        
-        relevant_docs = []
-        for i in range(len(results['documents'][0])):
-            relevant_docs.append({
-                'text': results['documents'][0][i],
-                'source': results['metadatas'][0][i]['source'],
-                'distance': results['distances'][0][i]
-            })
-        
-        return relevant_docs
+        return results['documents'][0] if results['documents'] else []
     except Exception as e:
         print(f"Search error: {e}")
         return []
 
-@app.get("/")
-def root():
-    return {
-        "status": "CU Denver Blockchain Club AI is running", 
-        "endpoints": ["/ask", "/health", "/docs-status"],
-        "docs": "/docs"
-    }
-
-@app.post("/ask", response_model=QueryResponse)
-async def ask_question(request: QueryRequest):
-    """Main endpoint for asking questions"""
+def query_llama(prompt: str) -> str:
+    """Query llama3-chatqa model via Ollama"""
     try:
-        # Search for relevant documents
-        relevant_docs = search_docs(request.question)
-        
-        # Create context
-        context = "\n\n".join([doc['text'] for doc in relevant_docs])
-        
-        # Add any additional context from the site
-        if request.context:
-            context = f"Page context: {request.context}\n\nDocumentation:\n{context}"
-        
-        # Create prompt
-        system_prompt = """You are the official AI assistant for UC Denver Blockchain Club. You help new members join and understand our blockchain platform.
-
-PERSONALITY:
-- Friendly and welcoming (like a helpful club member)
-- Patient with beginners who know nothing about crypto
-- Enthusiastic about the club's mission
-- Never condescending about blockchain knowledge
-
-GUIDELINES:
-- Always prioritize user safety and security
-- If unsure about financial advice, direct to human support
-- Use simple language, avoid technical jargon
-- Celebrate when users complete steps
-- Address common concerns: cost, safety, complexity
-
-CONTEXT: You have access to club documentation. Use it to give specific, accurate answers about our platform, smart contracts, and membership process."""
-
-        prompt = f"""{system_prompt}
-
-Documentation Context:
-{context}
-
-User Question: {request.question}
-
-Helpful Answer:"""
-        
-        # Get answer from Ollama
-        answer = query_ollama(prompt)
-        
-        # Calculate confidence based on relevance scores
-        avg_distance = sum([doc['distance'] for doc in relevant_docs]) / len(relevant_docs) if relevant_docs else 1.0
-        confidence = max(0.0, min(1.0, 1.0 - avg_distance))
-        
-        # Get unique sources
-        sources = list(set([doc['source'] for doc in relevant_docs]))
-        
-        return QueryResponse(
-            answer=answer,
-            sources=sources,
-            confidence=confidence
+        response = requests.post(
+            'http://localhost:11434/api/generate',
+            json={
+                'model': 'llama3-chatqa',
+                'prompt': prompt,
+                'stream': False,
+                'options': {
+                    'temperature': 0.7,
+                    'top_p': 0.9,
+                    'max_tokens': 500
+                }
+            }
         )
+        
+        if response.status_code == 200:
+            return response.json()['response']
+        else:
+            return "Sorry, I'm having trouble connecting to the AI model."
+            
+    except Exception as e:
+        print(f"Llama query error: {e}")
+        return "Sorry, I encountered an error while processing your question."
+
+@app.post("/ask")
+async def ask_question(request: Question):
+    try:
+        # Search for relevant documents from user-guide only
+        relevant_docs = search_documents(request.question)
+        context = "\n\n".join(relevant_docs) if relevant_docs else "No specific documentation found."
+        
+        # Create optimized prompt
+        system_prompt = """You are the official AI assistant for CU Denver Blockchain Club. Your role is to help members join and navigate our blockchain membership platform.
+
+CORE IDENTITY:
+- Friendly club representative who makes blockchain accessible
+- Patient educator for crypto beginners
+- Enthusiastic about decentralized technology
+- Safety-first approach to all recommendations
+
+RESPONSE STYLE:
+- Use simple, clear language (avoid: "utilize", "facilitate", "leverage")
+- Break complex topics into digestible steps
+- Include specific next actions when possible
+- Acknowledge user concerns directly
+
+SAFETY PROTOCOLS:
+- Never provide specific financial advice or price predictions
+- Always emphasize "do your own research" for investments
+- Direct complex technical issues to: Liam.Murphy@ucdenver.edu
+- Warn about common scams (fake airdrops, impersonation, etc.)
+
+CLUB CONTEXT:
+- We focus on education, not speculation
+- Membership is on-chain via smart contracts
+- Community values: transparency, security, learning
+
+When answering:
+1. Address the user's specific question first
+2. Provide relevant club/technical details from documentation
+3. Suggest logical next steps
+4. Offer to clarify or expand on any point
+
+Documentation Context: {context}
+
+User Question: {question}
+
+Response:"""
+
+        prompt = system_prompt.format(context=context, question=request.question)
+        
+        # Get answer from Llama 3.1 8B
+        answer = query_llama(prompt)
+        
+        return {
+            "question": request.question,
+            "answer": answer,
+            "sources_found": len(relevant_docs)
+        }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    try:
-        collection = chroma_client.get_collection(name="tech_docs")
-        doc_count = collection.count()
-        return {
-            "status": "healthy", 
-            "documents": doc_count,
-            "model": "llama3-chatqa",
-            "ollama_connection": "✅ Connected"
-        }
-    except Exception as e:
-        return {"status": "initializing", "error": str(e)}
+    return {"status": "healthy", "model": "llama3-chatqa", "docs_source": "user-guide"}
 
-@app.get("/docs-status")
-async def docs_status():
-    """Check documentation loading status"""
-    try:
-        collection = chroma_client.get_collection(name="tech_docs")
-        return {"loaded": True, "count": collection.count()}
-    except:
-        return {"loaded": False, "count": 0}
+@app.get("/")
+async def root():
+    return {"message": "CU Denver Blockchain Club AI Assistant", "docs": "/docs"}
 
 if __name__ == "__main__":
-    import uvicorn
+    print("🚀 Starting CU Denver Blockchain Club AI Assistant...")
+    print("📱 Use ngrok to make it public: ngrok http 8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)
