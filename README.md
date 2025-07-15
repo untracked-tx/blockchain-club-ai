@@ -37,18 +37,24 @@ The chatbot has access to comprehensive documentation about:
 
 ### One-Command Setup 🎯
 ```bash
+# First, make sure you have Xcode CLI and Rust:
+xcode-select --install
+brew install rust
+
+# Then run the project setup:
 git clone https://github.com/untracked-tx/blockchain-club-ai.git && cd blockchain-club-ai && chmod +x start_macbook.sh && ./start_macbook.sh
 ```
 
 **What the script does:**
 1. ✅ Checks for Python 3 and Homebrew (installs if missing)
-2. ✅ Installs Ollama (if needed)
-3. ✅ Creates Python virtual environment
-4. ✅ Installs Python dependencies in venv
-5. ✅ Starts Ollama service in background
-6. ✅ Downloads llama3-chatqa model (5-10 min first time)
-7. ✅ Sets up documentation database
-8. ✅ Starts API server on localhost:8000
+2. ✅ Checks/installs Xcode CLI and Rust (required for native Python packages)
+3. ✅ Installs Ollama (if needed)
+4. ✅ Creates Python virtual environment
+5. ✅ Installs Python dependencies in venv
+6. ✅ Starts Ollama service in background
+7. ✅ Downloads llama3-chatqa model (5-10 min first time)
+8. ✅ Sets up documentation database
+9. ✅ Starts API server on localhost:8000
 
 ### Make it Public (Optional)
 ```bash
@@ -61,9 +67,12 @@ ngrok http 8000
 
 1. **Prerequisites**
    ```bash
+   # Install Xcode CLI (C/C++ compiler)
+   xcode-select --install
    # Install Homebrew (if not already installed)
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   
+   # Install Rust
+   brew install rust
    # Install Ollama
    brew install ollama
    ```
@@ -72,11 +81,11 @@ ngrok http 8000
    ```bash
    git clone https://github.com/untracked-tx/blockchain-club-ai.git
    cd blockchain-club-ai
-   
    # Create virtual environment
    python3 -m venv venv
    source venv/bin/activate
-   
+   # Upgrade pip, wheel, setuptools
+   pip install --upgrade pip wheel setuptools
    # Install dependencies
    pip install -r requirements.txt
    ```
@@ -85,7 +94,6 @@ ngrok http 8000
    ```bash
    # Start Ollama (runs in background)
    ollama serve &
-   
    # Download model (takes 5-10 minutes first time)
    ollama pull llama3-chatqa
    ```
@@ -94,7 +102,6 @@ ngrok http 8000
    ```bash
    # Setup documentation database
    python setup_docs.py
-   
    # Start the API
    python app.py
    ```
@@ -214,3 +221,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 *Built with ❤️ for the blockchain community*
+
+## 🛠️ Mac Build Tools Required
+
+Some Python packages (like sentencepiece, pydantic-core, chromadb) require native code compilation (C++/Rust) on Mac. If you see errors like:
+- `ERROR: Failed building wheel for sentencepiece`
+- `ModuleNotFoundError: No module named 'chromadb'`
+
+You need to install these build tools first:
+
+1. **Xcode Command Line Tools (C/C++ compiler)**
+   ```bash
+   xcode-select --install
+   ```
+2. **Rust (for Rust-based packages)**
+   ```bash
+   brew install rust
+   ```
+3. **Upgrade pip, wheel, setuptools**
+   ```bash
+   pip install --upgrade pip wheel setuptools
+   ```
+4. **Always use a virtual environment**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+After installing these, run:
+```bash
+pip install -r requirements.txt
+```
+
+If you still get errors, check for missing libraries (e.g. `cmake`, `openssl`) and install with Homebrew:
+```bash
+brew install cmake openssl
+```
+
+---

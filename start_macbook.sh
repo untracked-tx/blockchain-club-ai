@@ -29,6 +29,25 @@ if ! command_exists ollama; then
     echo "✅ Ollama installed"
 fi
 
+# Check if Xcode CLI tools are installed
+if ! xcode-select -p &>/dev/null; then
+    echo "❌ Xcode Command Line Tools not found. Installing..."
+    xcode-select --install
+    echo "💡 Please complete the Xcode CLI install dialog, then rerun this script."
+    exit 1
+else
+    echo "✅ Xcode Command Line Tools found"
+fi
+
+# Check if Rust is installed
+if ! command_exists cargo; then
+    echo "❌ Rust not found. Installing via Homebrew..."
+    brew install rust
+    echo "✅ Rust installed"
+else
+    echo "✅ Rust found"
+fi
+
 # Create and activate virtual environment
 echo "🐍 Setting up Python virtual environment..."
 if [ ! -d "venv" ]; then
@@ -41,7 +60,7 @@ source venv/bin/activate
 
 # Install Python dependencies
 echo "� Installing Python dependencies..."
-pip install --upgrade pip
+pip install --upgrade pip wheel setuptools
 pip install -r requirements.txt
 
 # Start Ollama service (this runs in background)
