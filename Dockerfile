@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 # Create non-root user
 RUN useradd -m -u 1000 user
@@ -10,7 +10,12 @@ WORKDIR /app
 # Install system dependencies as root
 USER root
 RUN apt-get update && apt-get install -y \
+    build-essential \
     curl \
+    git \
+    cmake \
+    rustc \
+    cargo \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Ollama
@@ -21,6 +26,7 @@ USER user
 
 # Copy requirements and install Python dependencies
 COPY --chown=user ./requirements.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip wheel setuptools
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # Copy application code
