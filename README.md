@@ -1,8 +1,8 @@
-# 🤖 Blockchain Club Documentation Chatbot
+# 🤖 CU Denver Blockchain Club AI Assistant
 
-An AI-powered documentation chatbot for the **CU Denver** Blockchain Club's on-chain membership system. This FastAPI-based application provides intelligent, context-aware responses about the club's technical documentation, smart contracts, and blockchain protocols.
+An AI-powered documentation chatbot for the CU Denver Blockchain Club's on-chain membership system. Built with FastAPI, ChromaDB, and Ollama, it provides intelligent, context-aware answers about smart contracts, technical documentation, and blockchain protocols.
 
-**🌐 Live Demo**: Available at [untrackedtx.xyz](https://untrackedtx.xyz) via ngrok tunnel
+**🌐 Live Demo**: [untrackedtx.xyz](https://untrackedtx.xyz)
 
 ## 🚀 Features
 
@@ -26,101 +26,71 @@ The chatbot has access to comprehensive documentation about:
 
 - **FastAPI** - Modern, fast web framework for building APIs
 - **ChromaDB** - Vector database for semantic search
-- **Python** - Core application language
+- **Ollama** - Local AI model serving (llama3-chatqa)
+- **Python 3.8+** - Core application language
 - **Docker** - Containerization for easy deployment
 
-## 🚀 Quick Start (MacBook Optimized)
+## 🚀 Setup Instructions
 
 ### Prerequisites
 
 - **macOS** with Python 3.8+
-- **Ollama** installed
-- **ngrok** account (for public access)
+- **Homebrew** package manager
+- **Ollama** for local AI model serving
+- **ngrok** (optional, for public access)
 
-### One-Command Setup
+### Installation Steps
 
-```bash
-# 1. Install Ollama (if not installed)
-brew install ollama
-
-# 2. Start Ollama and pull model
-ollama serve &
-ollama pull llama3-chatqa
-
-# 3. Clone and setup project
-git clone https://github.com/untracked-tx/blockchain-club-ai.git
-cd blockchain-club-ai
-pip3 install -r requirements.txt
-python3 setup_docs.py
-
-# 4. Start the AI assistant
-python3 app.py &
-
-# 5. Make it public with ngrok
-ngrok http 8000
-```
-
-**🎉 That's it!** Copy the ngrok URL and update untrackedtx.xyz to point to it.
-
-### Manual Step-by-Step
-
-1. **Install Ollama**
+1. **Install Ollama and download the model**
    ```bash
    brew install ollama
-   ollama serve
-   ```
-
-2. **In another terminal, pull the model**
-   ```bash
+   ollama serve &
    ollama pull llama3-chatqa
    ```
 
-3. **Clone the repository**
+2. **Clone the repository**
    ```bash
    git clone https://github.com/untracked-tx/blockchain-club-ai.git
    cd blockchain-club-ai
    ```
 
-4. **Install dependencies**
+3. **Create and activate a virtual environment**
    ```bash
-   pip3 install -r requirements.txt
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+4. **Install Python dependencies**
+   ```bash
+   pip install --upgrade pip wheel setuptools
+   pip install -r requirements.txt
    ```
 
 5. **Set up the documentation database**
    ```bash
-   python3 setup_docs.py
+   python setup_docs.py
    ```
 
-6. **Run the application**
+6. **Start the application**
    ```bash
-   python3 app.py
+   python app.py
    ```
 
-7. **In another terminal, start ngrok**
+7. **Make it publicly accessible (optional)**
    ```bash
+   # In another terminal
    ngrok http 8000
    ```
 
-The API will be available locally at `http://localhost:8000` and publicly via the ngrok URL.
+Your AI assistant will be running at `http://localhost:8000`
 
-### Using Docker
+### Alternative: Docker Deployment
 
 ```bash
-# Build the image
+# Build and run with Docker
 docker build -t blockchain-club-ai .
-
-# Run the container
 docker run -p 8000:8000 blockchain-club-ai
 ```
-
-### Public Access with ngrok
-
-```bash
-# In another terminal (after starting the app):
-ngrok http 8000
-```
-
-Then update your website to point to the ngrok URL.
 
 ## 📖 API Usage
 
@@ -132,70 +102,77 @@ curl -X POST "http://localhost:8000/ask" \
      -d '{"question": "How does the membership smart contract work?"}'
 ```
 
+**Response:**
+```json
+{
+  "question": "How does the membership smart contract work?",
+  "answer": "The membership smart contract implements...",
+  "sources_found": 3
+}
+```
+
 ### Health Check
 
 ```bash
 curl http://localhost:8000/health
 ```
 
+### Interactive API Documentation
+
+Visit `http://localhost:8000/docs` for the interactive Swagger UI.
+
 ## 📁 Project Structure
 
 ```
+blockchain-club-ai/
 ├── app.py                    # Main FastAPI application
-├── setup_docs.py            # Setup script (user-guide only)
+├── setup_docs.py            # ChromaDB setup script
 ├── requirements.txt         # Python dependencies
 ├── Dockerfile              # Docker configuration
-├── DEPLOYMENT.md           # Deployment guide for other devices
-├── user-guide/            # Blockchain club documentation
+├── DEPLOYMENT.md           # Additional deployment info
+├── user-guide/            # Documentation source files
 │   ├── 1-PROJECT-OVERVIEW.md
 │   ├── 2-FRONTEND-GUIDE.md
 │   ├── 3-ONBOARDING-NAVIGATION.md
 │   ├── 4-SMART-CONTRACTS.md
 │   ├── AI-CHATBOT-GUIDE.md
-│   └── doc-breakdown.md   # Complete GitHub docs reference
+│   └── doc-breakdown.md
 └── chroma_db/             # Vector database (auto-generated)
 ```
 
 ## 🔧 Configuration
 
-The application can be configured through environment variables:
+Optional environment variables:
 
 - `PORT` - Server port (default: 8000)
 - `HOST` - Server host (default: 0.0.0.0)
+- `OLLAMA_HOST` - Ollama server URL (default: http://localhost:11434)
 
-## 📚 About the CU Denver Blockchain Club
+## 📚 About the Project
 
-This chatbot serves the **CU Denver Blockchain Club**, which focuses on:
+This chatbot serves the **CU Denver Blockchain Club**, supporting education and development in:
 
-- **Crypto Investing Education** - Teaching investment strategies and market analysis
-- **Blockchain Technology** - Exploring decentralized systems and protocols
-- **On-Chain Membership** - Implementing blockchain-based membership systems
-- **Smart Contract Development** - Building and auditing Ethereum contracts
+- **Crypto Investing Education** - Investment strategies and market analysis
+- **Blockchain Technology** - Decentralized systems and protocols
+- **On-Chain Membership** - Smart contract-based membership systems
+- **Smart Contract Development** - Ethereum contract building and auditing
 
-### 🔗 Related Projects
+### 🔗 Links
 
-- **Main Club Project**: [blockchain-club](https://github.com/untracked-tx/blockchain-club) - The core membership system and smart contracts
-- **Website**: https://untrackedtx.xyz (includes live chatbot demo)
+- **Live Demo**: [untrackedtx.xyz](https://untrackedtx.xyz)
+- **Main Repository**: [blockchain-club](https://github.com/untracked-tx/blockchain-club)
 - **Contact**: Liam.Murphy@ucdenver.edu
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- CU Denver Blockchain Club members
-- The broader blockchain and cryptocurrency community
-- Contributors to the open-source AI and vector database ecosystem
 
 ---
 
-*Built with ❤️ for the blockchain community*
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## 🤝 Contributing
+
+Contributions welcome! Fork the repo, create a feature branch, and submit a pull request.
+
+---
+
+*Built for the CU Denver Blockchain Club*
