@@ -37,7 +37,7 @@ The chatbot has access to comprehensive documentation about:
 
 ### One-Command Setup 🎯
 ```bash
-git clone https://github.com/yourusername/blockchain-club-ai.git && cd blockchain-club-ai && chmod +x start_macbook.sh && ./start_macbook.sh
+git clone https://github.com/untracked-tx/blockchain-club-ai.git && cd blockchain-club-ai && chmod +x start_macbook.sh && ./start_macbook.sh
 ```
 
 **What the script does:**
@@ -68,7 +68,7 @@ ngrok http 8000
 
 2. **Clone and Setup**
    ```bash
-   git clone https://github.com/yourusername/blockchain-club-ai.git
+   git clone https://github.com/untracked-tx/blockchain-club-ai.git
    cd blockchain-club-ai
    pip3 install -r requirements.txt
    ```

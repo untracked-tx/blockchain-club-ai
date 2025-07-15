@@ -19,7 +19,7 @@ setup(
     description="AI-powered documentation chatbot for the CU Denver Blockchain Club's on-chain membership system",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/blockchain-club-ai",
+    url="https://github.com/untracked-tx/blockchain-club-ai",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
