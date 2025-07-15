@@ -28,7 +28,7 @@ ngrok http 8000
 ## 🔧 Manual Setup (If Script Fails)
 
 ### Prerequisites
-1. **Python 3.11** - Check with `python3 --version`
+1. **Python 3.8 or higher** - Check with `python3 --version`
 2. **Homebrew** - Install from https://brew.sh
 3. **Git** - Should be pre-installed on macOS
 
@@ -79,12 +79,11 @@ python3 app.py
 ollama pull llama3-chatqa
 ```
 
-#### 2. Install Python 3.11 and dependencies
+#### 2. Install Python 3.8+ and dependencies
 ```bash
-brew install python@3.11
-export PATH="/opt/homebrew/opt/python@3.11/bin:$PATH"
-python3.11 --version
-python3.11 -m venv venv
+brew install python
+python3 --version
+python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip wheel setuptools
 pip install -r requirements.txt

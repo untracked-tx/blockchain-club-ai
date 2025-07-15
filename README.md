@@ -35,17 +35,16 @@ The chatbot has access to comprehensive documentation about:
 
 ## ⚠️ Python Version Required
 
-This project requires **Python 3.11** for best compatibility. If you have multiple Python versions, install and use Python 3.11:
+This project requires **Python 3.8 or higher**. Any working Python 3.x version should work (3.8, 3.9, 3.10, 3.11, 3.12, etc).
 
+Check your version:
 ```bash
-brew install python@3.11
-export PATH="/opt/homebrew/opt/python@3.11/bin:$PATH"
-python3.11 --version
+python3 --version
 ```
 
 When creating your virtual environment:
 ```bash
-python3.11 -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 ```
 
@@ -55,21 +54,20 @@ source venv/bin/activate
 
 ### One-Command Setup 🎯
 ```bash
-# First, make sure you have Xcode CLI, Rust, and Python 3.11:
+# First, make sure you have Xcode CLI, Rust, and Python 3.8+:
 xcode-select --install
 brew install rust
-brew install python@3.11
-export PATH="/opt/homebrew/opt/python@3.11/bin:$PATH"
+brew install python
 
 # Then run the project setup:
 git clone https://github.com/untracked-tx/blockchain-club-ai.git && cd blockchain-club-ai && chmod +x start_macbook.sh && ./start_macbook.sh
 ```
 
 **What the script does:**
-1. ✅ Checks for Python 3.11 and Homebrew (installs if missing)
+1. ✅ Checks for Python 3.8+ and Homebrew (installs if missing)
 2. ✅ Checks/installs Xcode CLI and Rust (required for native Python packages)
 3. ✅ Installs Ollama (if needed)
-4. ✅ Creates Python 3.11 virtual environment
+4. ✅ Creates Python virtual environment
 5. ✅ Installs Python dependencies in venv
 6. ✅ Starts Ollama service in background
 7. ✅ Downloads llama3-chatqa model (5-10 min first time)
@@ -93,10 +91,9 @@ ngrok http 8000
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    # Install Rust
    brew install rust
-   # Install Python 3.11
-   brew install python@3.11
-   export PATH="/opt/homebrew/opt/python@3.11/bin:$PATH"
-   python3.11 --version
+   # Install Python 3.8+ (if not already installed)
+   brew install python
+   python3 --version
    # Install Ollama
    brew install ollama
    ```
@@ -106,7 +103,7 @@ ngrok http 8000
    git clone https://github.com/untracked-tx/blockchain-club-ai.git
    cd blockchain-club-ai
    # Create virtual environment
-   python3.11 -m venv venv
+   python3 -m venv venv
    source venv/bin/activate
    # Upgrade pip, wheel, setuptools
    pip install --upgrade pip wheel setuptools

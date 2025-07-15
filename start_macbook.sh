@@ -9,19 +9,22 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Check if Python 3.11 is installed
-if command_exists python3.11; then
-    PY=python3.11
-else
+# Check if Python 3 is installed
+if command_exists python3; then
     PY=python3
-    echo "⚠️  Python 3.11 not found. Using default python3. You may encounter compatibility issues."
+else
+    echo "❌ Python 3 is not installed. Please install Python 3.8 or higher."
+    echo "💡 You can install it via Homebrew: brew install python"
+    exit 1
 fi
 
 # Check Python version
 PY_VERSION=$($PY --version 2>&1)
 echo "🐍 Using $PY_VERSION"
-if [[ "$PY_VERSION" != "Python 3.11"* ]]; then
-    echo "❌ Python 3.11 is required for this project. Please install it with: brew install python@3.11"
+PY_MAJOR=$($PY -c "import sys; print(sys.version_info.major)")
+PY_MINOR=$($PY -c "import sys; print(sys.version_info.minor)")
+if [ "$PY_MAJOR" -ne 3 ] || [ "$PY_MINOR" -lt 8 ]; then
+    echo "❌ Python 3.8 or higher is required for this project."
     exit 1
 fi
 
