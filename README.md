@@ -41,12 +41,14 @@ git clone https://github.com/untracked-tx/blockchain-club-ai.git && cd blockchai
 ```
 
 **What the script does:**
-1. ✅ Checks for Python 3 and Homebrew
+1. ✅ Checks for Python 3 and Homebrew (installs if missing)
 2. ✅ Installs Ollama (if needed)
-3. ✅ Downloads llama3-chatqa model
-4. ✅ Installs Python dependencies
-5. ✅ Sets up documentation database
-6. ✅ Starts API server on localhost:8000
+3. ✅ Creates Python virtual environment
+4. ✅ Installs Python dependencies in venv
+5. ✅ Starts Ollama service in background
+6. ✅ Downloads llama3-chatqa model (5-10 min first time)
+7. ✅ Sets up documentation database
+8. ✅ Starts API server on localhost:8000
 
 ### Make it Public (Optional)
 ```bash
@@ -70,19 +72,31 @@ ngrok http 8000
    ```bash
    git clone https://github.com/untracked-tx/blockchain-club-ai.git
    cd blockchain-club-ai
-   pip3 install -r requirements.txt
+   
+   # Create virtual environment
+   python3 -m venv venv
+   source venv/bin/activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
    ```
 
 3. **Start Ollama and Download Model**
    ```bash
+   # Start Ollama (runs in background)
    ollama serve &
+   
+   # Download model (takes 5-10 minutes first time)
    ollama pull llama3-chatqa
    ```
 
 4. **Setup Database and Run**
    ```bash
-   python3 setup_docs.py
-   python3 app.py
+   # Setup documentation database
+   python setup_docs.py
+   
+   # Start the API
+   python app.py
    ```
 
 ### Using Docker
@@ -136,8 +150,13 @@ blockchain-club-ai/
 
 ## 🔧 Configuration
 
-The application can be configured through environment variables:
+### Understanding Ollama
+- **Ollama** is a local AI server that runs the language model
+- **`ollama serve`** starts the server (runs in background)
+- **`ollama pull llama3-chatqa`** downloads the AI model (one-time, ~4GB)
+- **The model runs locally** - no internet needed after download
 
+### Environment Variables
 - `PORT` - Server port (default: 8000)
 - `HOST` - Server host (default: 0.0.0.0)
 
